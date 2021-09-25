@@ -10,8 +10,7 @@ getRandomInt(0,10);
 // Функция для проверки максимальной длины строки
 
 function isStringFit(string, maxlength) {
-  string = toString(string);
-  return string.length <= maxlength;
+  return +string.length <= maxlength;
 }
 
 isStringFit('Привет', 7);
