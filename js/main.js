@@ -1,3 +1,4 @@
+/* eslint-disable id-length */
 // Функция, возвращающая случайное целое число из переданного диапазона включительно
 
 function getRandomInt(min, max) {
@@ -34,7 +35,6 @@ const getPhotosArr = () => {
 
   const namesArr = ['Иван','Максим','Светлана','Олег','Ольга','Елена','Артем'];
 
-  // eslint-disable-next-line id-length
   for (let i = 0; i < 25; i++ ) {
     photoArr.push({
       id: i + 1,
