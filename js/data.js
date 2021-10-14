@@ -27,37 +27,6 @@ const createPhotosArr = (length) => Array.from(Array(length)).map((value, index)
   comments: createCommentsArr(),
 }));
 
-// Отрисовка миниатюр пользователей
-
-const createMiniPhotos = () => {
-  const pictures = document.querySelector('.pictures');
-
-  const photosArr = createPhotosArr(5);
-
-  const pictureTemplate = document.querySelector('#picture').content;
-  const template = pictureTemplate.querySelector('.picture');
-
-  const fragment = document.createDocumentFragment();
-
-  for (let i = 0; i < photosArr.length; i++) {
-    const element = template.cloneNode(true);
-
-    const elementImg = element.querySelector('.picture__img');
-    elementImg.src = photosArr[i].url;
-
-    const elementLikes = element.querySelector('.picture__likes');
-    elementLikes.textContent = photosArr[i].likes;
-
-    const elementCommentsAmount = element.querySelector('.picture__comments');
-    elementCommentsAmount.textContent = photosArr[i].comments.length;
-
-    fragment.appendChild(element);
-  }
-
-  pictures.appendChild(fragment);
-};
-
-
 //Export
 
-export {createCommentsArr, createPhotosArr, createMiniPhotos};
+export {createCommentsArr, createPhotosArr};
