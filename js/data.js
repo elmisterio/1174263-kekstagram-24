@@ -22,7 +22,7 @@ const createCommentsArr = () => {
 const createPhotosArr = (length) => Array.from(Array(length)).map((value, index) => ({
   id: index + 1,
   url: `photos/${index + 1}.jpg`,
-  description: 'Описание фотографии',
+  description: 'Невероятные приключения!',
   likes: getRandomInt(15,200),
   comments: createCommentsArr(),
 }));
