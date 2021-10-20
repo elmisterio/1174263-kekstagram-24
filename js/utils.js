@@ -26,32 +26,33 @@ function isStringFit(string, maxlength) {
 
 // Отрисовка миниатюр пользователей
 
-const insertMiniPhotos = (data, node) => {
+const insertPhotoThumbnail = (data, node) => {
   const pictureTemplate = document.querySelector('#picture').content;
   const template = pictureTemplate.querySelector('.picture');
 
   const fragment = document.createDocumentFragment();
 
-  for (let i = 0; i < data.length; i++) {
-    const element = template.cloneNode(true);
+  const element = template.cloneNode(true);
 
-    const elementImg = element.querySelector('.picture__img');
-    elementImg.src = data[i].url;
+  const elementImg = element.querySelector('.picture__img');
+  elementImg.src = data.url;
 
-    const elementLikes = element.querySelector('.picture__likes');
-    elementLikes.textContent = data[i].likes;
+  const elementLikes = element.querySelector('.picture__likes');
+  elementLikes.textContent = data.likes;
 
-    const elementCommentsAmount = element.querySelector('.picture__comments');
-    elementCommentsAmount.textContent = data[i].comments.length;
+  const elementCommentsAmount = element.querySelector('.picture__comments');
+  elementCommentsAmount.textContent = data.comments.length;
 
-    fragment.appendChild(element);
-  }
+  fragment.appendChild(element);
+
   node.appendChild(fragment);
+
+  return element;
 };
 
 // Отрисовка окна с полноразмерным изображением
 
-const renderFullPhoto = (thumbnails, photosData) => {
+const openFullPhoto = (thumbnail) => {
   const documentBody = document.querySelector('body');
 
   const bigPicture = document.querySelector('.big-picture');
@@ -67,41 +68,32 @@ const renderFullPhoto = (thumbnails, photosData) => {
 
   const fragment = document.createDocumentFragment();
 
-  const thumbnailClickHandler = (thumbnail, photoData) => {
-    thumbnail.addEventListener('click', (evt) => {
-      evt.preventDefault();
+  bigPicture.classList.remove('hidden');
+  bigPictureImg.src = thumbnail.url;
+  bigPictureDescription.textContent = thumbnail.description;
+  bigPictureLikesCount.textContent = thumbnail.likes;
 
-      bigPicture.classList.remove('hidden');
-      bigPictureImg.src = photoData.url;
-      bigPictureDescription.textContent = photoData.description;
-      bigPictureLikesCount.textContent = photoData.likes;
+  const thumbnailComments = thumbnail.comments;
 
-      for (let j = 0; j < photoData.comments.length; j++) {
-        const element = commentItem.cloneNode(true);
+  thumbnailComments.forEach((comment) => {
+    const element = commentItem.cloneNode(true);
+    const elementImg = element.querySelector('.social__picture');
+    elementImg.src = comment.avatar;
+    elementImg.alt = comment.name;
 
-        const elementImg = element.querySelector('.social__picture');
-        elementImg.src = photoData.comments[j].avatar;
-        elementImg.alt = photoData.comments[j].name;
+    const elementText = element.querySelector('.social__text');
+    elementText.textContent = comment.message;
 
-        const elementText = element.querySelector('.social__text');
-        elementText.textContent = photoData.comments[j].message;
+    fragment.appendChild(element);
+  });
 
-        fragment.appendChild(element);
-      }
+  commentList.innerHTML = '';
+  commentList.appendChild(fragment);
 
-      commentList.innerHTML = '';
-      commentList.appendChild(fragment);
+  commentCount.classList.add('hidden');
+  commentsLoader.classList.add('hidden');
 
-      commentCount.classList.add('hidden');
-      commentsLoader.classList.add('hidden');
-
-      documentBody.classList.add('modal-open');
-    });
-  };
-
-  for (let i = 0; i < thumbnails.length; i++) {
-    thumbnailClickHandler(thumbnails[i], photosData[i]);
-  }
+  documentBody.classList.add('modal-open');
 
   bigPictureCloseButton.addEventListener('click', () => {
     bigPicture.classList.add('hidden');
@@ -117,4 +109,4 @@ const renderFullPhoto = (thumbnails, photosData) => {
 
 // Export
 
-export {getRandomInt, isStringFit, insertMiniPhotos, renderFullPhoto};
+export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto};
