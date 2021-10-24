@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-trailing-spaces */
 /* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
@@ -23,6 +24,10 @@ function getRandomInt(min, max) {
 function isStringFit(string, maxlength) {
   return +string.length <= maxlength;
 }
+
+// Проверка нажатия клавиши Esc
+
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
 // Отрисовка миниатюр пользователей
 
@@ -68,43 +73,54 @@ const openFullPhoto = (thumbnail) => {
 
   const fragment = document.createDocumentFragment();
 
-  bigPicture.classList.remove('hidden');
-  bigPictureImg.src = thumbnail.url;
-  bigPictureDescription.textContent = thumbnail.description;
-  bigPictureLikesCount.textContent = thumbnail.likes;
-
-  const thumbnailComments = thumbnail.comments;
-
-  thumbnailComments.forEach((comment) => {
-    const element = commentItem.cloneNode(true);
-    const elementImg = element.querySelector('.social__picture');
-    elementImg.src = comment.avatar;
-    elementImg.alt = comment.name;
-
-    const elementText = element.querySelector('.social__text');
-    elementText.textContent = comment.message;
-
-    fragment.appendChild(element);
-  });
-
-  commentList.innerHTML = '';
-  commentList.appendChild(fragment);
-
-  commentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
-
-  documentBody.classList.add('modal-open');
-
-  bigPictureCloseButton.addEventListener('click', () => {
-    bigPicture.classList.add('hidden');
-  });
-
-  document.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Escape') {
-      bigPicture.classList.add('hidden');
+  const onPopupEscKeydown = (evt) => {
+    if (isEscapeKey) {
+      evt.preventDefault();
+      closePhotoModal();
     }
-  });
+  };
 
+  const openPhotoModal = () => {
+    bigPicture.classList.remove('hidden');
+    bigPictureImg.src = thumbnail.url;
+    bigPictureDescription.textContent = thumbnail.description;
+    bigPictureLikesCount.textContent = thumbnail.likes;
+
+    const thumbnailComments = thumbnail.comments;
+
+    thumbnailComments.forEach((comment) => {
+      const element = commentItem.cloneNode(true);
+      const elementImg = element.querySelector('.social__picture');
+      elementImg.src = comment.avatar;
+      elementImg.alt = comment.name;
+
+      const elementText = element.querySelector('.social__text');
+      elementText.textContent = comment.message;
+
+      fragment.appendChild(element);
+    });
+
+    commentList.innerHTML = '';
+    commentList.appendChild(fragment);
+
+    commentCount.classList.add('hidden');
+    commentsLoader.classList.add('hidden');
+
+    documentBody.classList.add('modal-open');
+
+    bigPictureCloseButton.addEventListener('click', () => {
+      bigPicture.classList.add('hidden');
+    });
+
+    document.addEventListener('keydown', onPopupEscKeydown);
+  };
+
+  const closePhotoModal = () => {
+    bigPicture.classList.add('hidden');
+    bigPictureCloseButton.removeEventListener('click', onPopupEscKeydown);
+  };
+
+  openPhotoModal();
 };
 
 // Export
