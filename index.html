@@ -116,7 +116,7 @@
 
                 <!-- Добавление хэш-тегов и комментария к изображению -->
                 <fieldset class="img-upload__text text">
-                  <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег" >
+                  <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег" pattern="/^#[A-Za-zА-Яа-яЁё0-9]{0,20}$/gmi">
                   <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
                 </fieldset>
 
