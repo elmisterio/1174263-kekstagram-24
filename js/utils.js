@@ -1,8 +1,4 @@
 /* eslint-disable no-use-before-define */
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable no-console */
-/* eslint-disable no-unused-vars */
-
 // Функция, возвращающая случайное целое число из переданного диапазона включительно
 
 function getRandomInt(min, max) {
@@ -41,6 +37,7 @@ const insertPhotoThumbnail = (data, node) => {
 
   const elementImg = element.querySelector('.picture__img');
   elementImg.src = data.url;
+  elementImg.setAttribute('data-id', data.id);
 
   const elementLikes = element.querySelector('.picture__likes');
   elementLikes.textContent = data.likes;
@@ -58,6 +55,9 @@ const insertPhotoThumbnail = (data, node) => {
 // Отрисовка окна с полноразмерным изображением
 
 const openFullPhoto = (thumbnail) => {
+
+  // Записываем в переменные элементы модального окна с полным изображением
+
   const documentBody = document.querySelector('body');
 
   const bigPicture = document.querySelector('.big-picture');
@@ -73,6 +73,49 @@ const openFullPhoto = (thumbnail) => {
 
   const fragment = document.createDocumentFragment();
 
+  // Показываем модальное окно
+
+  bigPicture.classList.remove('hidden');
+
+  // Заполняем окно данными из массива
+
+  bigPictureImg.src = thumbnail.url;
+  bigPictureDescription.textContent = thumbnail.description;
+  bigPictureLikesCount.textContent = thumbnail.likes;
+
+  const thumbnailComments = thumbnail.comments;
+
+  thumbnailComments.forEach((comment) => {
+    const element = commentItem.cloneNode(true);
+    const elementImg = element.querySelector('.social__picture');
+    elementImg.src = comment.avatar;
+    elementImg.alt = comment.name;
+
+    const elementText = element.querySelector('.social__text');
+    elementText.textContent = comment.message;
+
+    fragment.appendChild(element);
+  });
+
+  commentList.innerHTML = '';
+  commentList.appendChild(fragment);
+
+  commentCount.classList.add('hidden');
+  commentsLoader.classList.add('hidden');
+
+  documentBody.classList.add('modal-open');
+
+  // Объявляем функцию, которая закрывает окно и удаляет обработчики
+
+  const closePhotoModal = () => {
+    bigPicture.classList.add('hidden');
+    documentBody.classList.remove('modal-open');
+    bigPictureCloseButton.removeEventListener('click', closePhotoModal);
+    document.removeEventListener('keydown', onPopupEscKeydown);
+  };
+
+  // Объявляем обработчик кнопки закрытия по нажатию Esc
+
   const onPopupEscKeydown = (evt) => {
     if (isEscapeKey) {
       evt.preventDefault();
@@ -80,47 +123,11 @@ const openFullPhoto = (thumbnail) => {
     }
   };
 
-  const openPhotoModal = () => {
-    bigPicture.classList.remove('hidden');
-    bigPictureImg.src = thumbnail.url;
-    bigPictureDescription.textContent = thumbnail.description;
-    bigPictureLikesCount.textContent = thumbnail.likes;
+  // Вешаем обработчики на кнопку закрыти и на документ
 
-    const thumbnailComments = thumbnail.comments;
+  bigPictureCloseButton.addEventListener('click', closePhotoModal);
+  document.addEventListener('keydown', onPopupEscKeydown);
 
-    thumbnailComments.forEach((comment) => {
-      const element = commentItem.cloneNode(true);
-      const elementImg = element.querySelector('.social__picture');
-      elementImg.src = comment.avatar;
-      elementImg.alt = comment.name;
-
-      const elementText = element.querySelector('.social__text');
-      elementText.textContent = comment.message;
-
-      fragment.appendChild(element);
-    });
-
-    commentList.innerHTML = '';
-    commentList.appendChild(fragment);
-
-    commentCount.classList.add('hidden');
-    commentsLoader.classList.add('hidden');
-
-    documentBody.classList.add('modal-open');
-
-    bigPictureCloseButton.addEventListener('click', () => {
-      bigPicture.classList.add('hidden');
-    });
-
-    document.addEventListener('keydown', onPopupEscKeydown);
-  };
-
-  const closePhotoModal = () => {
-    bigPicture.classList.add('hidden');
-    bigPictureCloseButton.removeEventListener('click', onPopupEscKeydown);
-  };
-
-  openPhotoModal();
 };
 
 // Export
