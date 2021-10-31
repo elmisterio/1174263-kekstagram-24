@@ -184,53 +184,76 @@ const openImageModal = () => {
 
     const isHashtagAmountCorrect = () => hashs.length <= 5;
 
-    let validityResult;
+    const isHashtagNoRepeat = () => {
+      for (let i = 0; i < hashs.length; i++) {
+        for (let j = 0; i < hashs.length; j++) {
+          if (i === j) {
+            continue;
+          }
 
-    for (let i = 0; i <= hashs.length; i++) {
-      validityResult = isHashtagStartsWithHash(hashs[i]) && isHashtagHasCorrectSymbols(hashs[i])
-      && isHashtagContainsNotOnlyHashSymbol(hashs[i]) && isHashtagHasCorrectLength(hashs[i]) && isHashtagAmountCorrect();
-
-      if (!validityResult) {
-        if (!isHashtagStartsWithHash(hashs[i])) {
-          hashtagInput.setCustomValidity('Хештег должен начинаться с #');
-          break;
-        } else if (!isHashtagHasCorrectSymbols(hashs[i])) {
-          hashtagInput.setCustomValidity('Хештег не может содержать пробелы, спецсимволы, символы пунктуации, эмодзи и т. д.');
-          break;
-        } else if (!isHashtagContainsNotOnlyHashSymbol(hashs[i])) {
-          hashtagInput.setCustomValidity('Хештег не должен состоять только из #');
-          break;
-        } else if (!isHashtagHasCorrectLength(hashs[i])) {
-          hashtagInput.setCustomValidity('Длина хештега не должна превышать 20 символов');
-          break;
-        } else if (!isHashtagAmountCorrect()) {
-          hashtagInput.setCustomValidity('Можно указать не более 5 хештегов');
-          break;
+          if (hashs[i].toLowerCase() === hashs[j].toLowerCase()) {
+            return false;
+          }
         }
       }
+      return true;
+    };
+
+    let validityResult = true;
+
+    if (hashs.length === 1 && hashs[0] === '') {
       return validityResult;
+    } else {
+      for (let i = 0; i <= hashs.length; i++) {
+        validityResult = isHashtagStartsWithHash(hashs[i]) && isHashtagHasCorrectSymbols(hashs[i])
+        && isHashtagContainsNotOnlyHashSymbol(hashs[i]) && isHashtagHasCorrectLength(hashs[i]);
+
+        if (!validityResult) {
+          if (!isHashtagStartsWithHash(hashs[i])) {
+            hashtagInput.setCustomValidity('Хештег должен начинаться с #');
+            break;
+          } else if (!isHashtagContainsNotOnlyHashSymbol(hashs[i])) {
+            hashtagInput.setCustomValidity('Хештег не должен состоять только из #');
+            break;
+          } else if (!isHashtagHasCorrectSymbols(hashs[i])) {
+            hashtagInput.setCustomValidity('Хештег не может содержать пробелы, спецсимволы, символы пунктуации, эмодзи и т. д.');
+            break;
+          } else if (!isHashtagHasCorrectLength(hashs[i])) {
+            hashtagInput.setCustomValidity('Длина хештега не должна превышать 20 символов');
+            break;
+          }
+        } else {
+          hashtagInput.setCustomValidity('');
+        }
+      }
+
+      if (!validityResult) {
+        return validityResult = false;
+      }
+
+      if (!isHashtagAmountCorrect()) {
+        hashtagInput.setCustomValidity('Можно указать не более 5 хештегов');
+        return validityResult = false;
+      } else if (isHashtagNoRepeat()) {
+        hashtagInput.setCustomValidity('Хештеги не должны повторяться');
+        return validityResult = false;
+      } else {
+        hashtagInput.setCustomValidity('');
+      }
     }
+    return validityResult;
 
   };
 
   uploadForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
-    isHashtagsValid();
+    const hashs = hashtagInput.value.split(' ');
+    const isValid = isHashtagsValid(hashs);
+
+    if (!isValid) {
+      evt.preventDefault();
+    }
+
   });
-
-  // Проверка валидности
-
-  // const isValidHashtagLength = () => {
-  //   const inputArr = hashtagInput.value.split('');
-  //   console.log(inputArr)
-  // }
-  // // Проверка при отправке
-
-  // uploadForm.addEventListener('submit', (evt) => {
-  //   evt.preventDefault()
-  //   isValidHashtagLength()
-  // })
-
 };
 
 const uploadImage = () => {
