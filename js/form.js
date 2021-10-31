@@ -163,12 +163,59 @@ const openImageModal = () => {
 
   const hashtagInput = uploadForm.querySelector('.text__hashtags');
 
-  hashtagInput.addEventListener('invalid', () => {
-    if (hashtagInput.validity.patternMismatch) {
-      hashtagInput.setCustomValidity('Некорректный формат данных');
-    } else {
-      hashtagInput.setCustomValidity('');
+  const isHashtagsValid = (hashs) => {
+
+    const isHashtagStartsWithHash = (hash) => {
+      const regExpStartsWithHash = /^#/;
+      return regExpStartsWithHash.test(hash);
+    };
+
+    const isHashtagHasCorrectSymbols = (hash) => {
+      const regExpCorrectSymbols = /[A-Za-zА-Яа-яЁё0-9]/;
+      return regExpCorrectSymbols.test(hash);
+    };
+
+    const isHashtagContainsNotOnlyHashSymbol = (hash) => {
+      const regExpNotOnlyHashSymbol = /^#[A-Za-zА-Яа-яЁё0-9]/;
+      return regExpNotOnlyHashSymbol.test(hash);
+    };
+
+    const isHashtagHasCorrectLength = (hash) => hash.length <= 20;
+
+    const isHashtagAmountCorrect = () => hashs.length <= 5;
+
+    let validityResult;
+
+    for (let i = 0; i <= hashs.length; i++) {
+      validityResult = isHashtagStartsWithHash(hashs[i]) && isHashtagHasCorrectSymbols(hashs[i])
+      && isHashtagContainsNotOnlyHashSymbol(hashs[i]) && isHashtagHasCorrectLength(hashs[i]) && isHashtagAmountCorrect();
+
+      if (!validityResult) {
+        if (!isHashtagStartsWithHash(hashs[i])) {
+          hashtagInput.setCustomValidity('Хештег должен начинаться с #');
+          break;
+        } else if (!isHashtagHasCorrectSymbols(hashs[i])) {
+          hashtagInput.setCustomValidity('Хештег не может содержать пробелы, спецсимволы, символы пунктуации, эмодзи и т. д.');
+          break;
+        } else if (!isHashtagContainsNotOnlyHashSymbol(hashs[i])) {
+          hashtagInput.setCustomValidity('Хештег не должен состоять только из #');
+          break;
+        } else if (!isHashtagHasCorrectLength(hashs[i])) {
+          hashtagInput.setCustomValidity('Длина хештега не должна превышать 20 символов');
+          break;
+        } else if (!isHashtagAmountCorrect()) {
+          hashtagInput.setCustomValidity('Можно указать не более 5 хештегов');
+          break;
+        }
+      }
+      return validityResult;
     }
+
+  };
+
+  uploadForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    isHashtagsValid();
   });
 
   // Проверка валидности
