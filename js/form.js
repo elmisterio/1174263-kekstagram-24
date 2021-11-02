@@ -165,19 +165,20 @@ const openImageModal = () => {
 
   const isHashtagsValid = (hashs) => {
 
-    const isHashtagStartsWithHash = (hash) => {
-      const regExpStartsWithHash = /^#/;
-      return regExpStartsWithHash.test(hash);
-    };
+    const isHashtagStartsWithHash = (hash) => hash.substring(0,1) === '#';
 
     const isHashtagHasCorrectSymbols = (hash) => {
       const regExpCorrectSymbols = /[A-Za-zА-Яа-яЁё0-9]/;
-      return regExpCorrectSymbols.test(hash);
-    };
 
-    const isHashtagContainsNotOnlyHashSymbol = (hash) => {
-      const regExpNotOnlyHashSymbol = /^#[A-Za-zА-Яа-яЁё0-9]/;
-      return regExpNotOnlyHashSymbol.test(hash);
+      let result;
+
+      for (let i = 1; i < hash.length; i++) {
+        result = regExpCorrectSymbols.test(hash[i]);
+        if (!result) {
+          return false;
+        }
+      }
+      return true;
     };
 
     const isHashtagHasCorrectLength = (hash) => hash.length <= 20;
@@ -186,7 +187,7 @@ const openImageModal = () => {
 
     const isHashtagNoRepeat = () => {
       for (let i = 0; i < hashs.length; i++) {
-        for (let j = 0; i < hashs.length; j++) {
+        for (let j = 0; j < hashs.length; j++) {
           if (i === j) {
             continue;
           }
@@ -199,61 +200,98 @@ const openImageModal = () => {
       return true;
     };
 
-    let validityResult = true;
+    if (hashtagInput.value.length === 0) {
+      return true;
+    }
 
-    if (hashs.length === 1 && hashs[0] === '') {
-      return validityResult;
-    } else {
-      for (let i = 0; i <= hashs.length; i++) {
-        validityResult = isHashtagStartsWithHash(hashs[i]) && isHashtagHasCorrectSymbols(hashs[i])
-        && isHashtagContainsNotOnlyHashSymbol(hashs[i]) && isHashtagHasCorrectLength(hashs[i]);
-
-        if (!validityResult) {
-          if (!isHashtagStartsWithHash(hashs[i])) {
-            hashtagInput.setCustomValidity('Хештег должен начинаться с #');
-            break;
-          } else if (!isHashtagContainsNotOnlyHashSymbol(hashs[i])) {
-            hashtagInput.setCustomValidity('Хештег не должен состоять только из #');
-            break;
-          } else if (!isHashtagHasCorrectSymbols(hashs[i])) {
-            hashtagInput.setCustomValidity('Хештег не может содержать пробелы, спецсимволы, символы пунктуации, эмодзи и т. д.');
-            break;
-          } else if (!isHashtagHasCorrectLength(hashs[i])) {
-            hashtagInput.setCustomValidity('Длина хештега не должна превышать 20 символов');
-            break;
-          }
-        } else {
-          hashtagInput.setCustomValidity('');
-        }
-      }
-
-      if (!validityResult) {
-        return validityResult = false;
-      }
-
-      if (!isHashtagAmountCorrect()) {
-        hashtagInput.setCustomValidity('Можно указать не более 5 хештегов');
-        return validityResult = false;
-      } else if (isHashtagNoRepeat()) {
-        hashtagInput.setCustomValidity('Хештеги не должны повторяться');
-        return validityResult = false;
+    const validateHash = (hash) => {
+      if (!isHashtagStartsWithHash(hash)) {
+        hashtagInput.setCustomValidity('Хештег должен начинаться с #');
+        return false;
+      } else if (!isHashtagHasCorrectSymbols(hash)) {
+        hashtagInput.setCustomValidity('Хештег не может содержать пробелы, спецсимволы, символы пунктуации, эмодзи и т. д.');
+        return false;
+      } else if (!isHashtagHasCorrectLength(hash)) {
+        hashtagInput.setCustomValidity('Максимальная длина одного хэш-тега 20 символов');
+        return false;
       } else {
-        hashtagInput.setCustomValidity('');
+        return true;
+      }
+    };
+
+    for (let i = 0; i < hashs.length; i++) {
+      if (!validateHash(hashs[i])) {
+        return false;
       }
     }
-    return validityResult;
 
+    if (!isHashtagAmountCorrect()) {
+      hashtagInput.setCustomValidity('Можно указать не более 5 хештегов');
+      return false;
+    }
+
+    if (!isHashtagNoRepeat()) {
+      hashtagInput.setCustomValidity('Хештеги не должны повторяться');
+      return false;
+    }
   };
 
-  uploadForm.addEventListener('submit', (evt) => {
-    const hashs = hashtagInput.value.split(' ');
-    const isValid = isHashtagsValid(hashs);
+  // Комментарии
 
-    if (!isValid) {
-      evt.preventDefault();
+  const commentInput = uploadForm.querySelector('.text__description');
+
+  const isCommentValid = () => {
+
+    if (commentInput.value.length > 140) {
+      commentInput.setCustomValidity('Длина комментария не может составлять больше 140 символов');
+      return false;
     }
 
-  });
+    return true;
+  };
+
+  // Обработчики отправки формы
+
+  const onFormSubmit = (evt) => {
+    const hashs = hashtagInput.value.split(' ');
+
+    if (!isHashtagsValid(hashs) || !isCommentValid()) {
+      evt.preventDefault();
+    }
+  };
+
+  const onHashtagInput = () => {
+    hashtagInput.setCustomValidity('');
+  };
+
+  const onCommentInput = () => {
+    commentInput.setCustomValidity('');
+  };
+
+  uploadForm.addEventListener('submit', onFormSubmit);
+  hashtagInput.addEventListener('input', onHashtagInput);
+  commentInput.addEventListener('input', onCommentInput);
+
+  // Закрытие окна
+
+  const documentBody = document.querySelector('body');
+  const editImageForm = uploadForm.querySelector('.img-upload__overlay');
+  const imageModalCloseButton = uploadForm.querySelector('.img-upload__cancel');
+
+  const closeImageModalOnClick = () => {
+    editImageForm.classList.add('hidden');
+    documentBody.classList.remove('modal--open');
+  };
+
+  const closeImageModalOnEsc = (evt) => {
+    if (evt.key === 'Escape') {
+      closeImageModalOnClick();
+    }
+  };
+
+  imageModalCloseButton.addEventListener('click', closeImageModalOnClick);
+  document.addEventListener('keydown', closeImageModalOnEsc);
+
 };
 
 const uploadImage = () => {
