@@ -1,5 +1,12 @@
+// Записываем элементы формы в переменные
+const documentBody = document.querySelector('body');
+const uploadForm = document.querySelector('.img-upload__form');
+const uploadButton = uploadForm.querySelector('.img-upload__input');
+const editImageForm = uploadForm.querySelector('.img-upload__overlay');
+
+// Создаем функцию, открывающую окно редактирования фото
+
 const openImageModal = () => {
-  const uploadForm = document.querySelector('.img-upload__form');
   const reduceScaleControl = uploadForm.querySelector('.scale__control--smaller');
   const increaseScaleControl = uploadForm.querySelector('.scale__control--bigger');
   const imageScaleValueField = uploadForm.querySelector('.scale__control--value');
@@ -159,9 +166,11 @@ const openImageModal = () => {
 
   effectsList.addEventListener('change', onEffectChange);
 
-  // Хэштег
+  // Хэштеги
 
   const hashtagInput = uploadForm.querySelector('.text__hashtags');
+
+  // Создаем функцию, проверяющую хештеги на валидность
 
   const isHashtagsValid = (hashs) => {
 
@@ -207,12 +216,15 @@ const openImageModal = () => {
     const validateHash = (hash) => {
       if (!isHashtagStartsWithHash(hash)) {
         hashtagInput.setCustomValidity('Хештег должен начинаться с #');
+        hashtagInput.reportValidity();
         return false;
       } else if (!isHashtagHasCorrectSymbols(hash)) {
         hashtagInput.setCustomValidity('Хештег не может содержать пробелы, спецсимволы, символы пунктуации, эмодзи и т. д.');
+        hashtagInput.reportValidity();
         return false;
       } else if (!isHashtagHasCorrectLength(hash)) {
         hashtagInput.setCustomValidity('Максимальная длина одного хэш-тега 20 символов');
+        hashtagInput.reportValidity();
         return false;
       } else {
         return true;
@@ -227,18 +239,24 @@ const openImageModal = () => {
 
     if (!isHashtagAmountCorrect()) {
       hashtagInput.setCustomValidity('Можно указать не более 5 хештегов');
+      hashtagInput.reportValidity();
       return false;
     }
 
     if (!isHashtagNoRepeat()) {
       hashtagInput.setCustomValidity('Хештеги не должны повторяться');
+      hashtagInput.reportValidity();
       return false;
     }
+
+    return true;
   };
 
   // Комментарии
 
   const commentInput = uploadForm.querySelector('.text__description');
+
+  // Создаем функцию, проверяющую комментарий на валидность
 
   const isCommentValid = () => {
 
@@ -250,7 +268,7 @@ const openImageModal = () => {
     return true;
   };
 
-  // Обработчики отправки формы
+  // Создаем функции-обработчики отправки формы
 
   const onFormSubmit = (evt) => {
     const hashs = hashtagInput.value.split(' ');
@@ -268,44 +286,54 @@ const openImageModal = () => {
     commentInput.setCustomValidity('');
   };
 
+  // Вешаем слушатели событий
+
   uploadForm.addEventListener('submit', onFormSubmit);
   hashtagInput.addEventListener('input', onHashtagInput);
   commentInput.addEventListener('input', onCommentInput);
 
   // Закрытие окна
 
-  const documentBody = document.querySelector('body');
-  const editImageForm = uploadForm.querySelector('.img-upload__overlay');
   const imageModalCloseButton = uploadForm.querySelector('.img-upload__cancel');
+
+  const clearModalFields = () => {
+    uploadButton.value = '';
+    hashtagInput.value = '';
+    commentInput.value = '';
+    slider.noUiSlider.destroy();
+  };
 
   const closeImageModalOnClick = () => {
     editImageForm.classList.add('hidden');
     documentBody.classList.remove('modal--open');
+    imageModalCloseButton.removeEventListener('click', closeImageModalOnClick);
+    effectsList.removeEventListener('change', onEffectChange);
+    clearModalFields();
   };
 
   const closeImageModalOnEsc = (evt) => {
     if (evt.key === 'Escape') {
-      closeImageModalOnClick();
+      editImageForm.classList.add('hidden');
+      documentBody.classList.remove('modal--open');
+      document.removeEventListener('keydown', closeImageModalOnEsc);
+      effectsList.removeEventListener('change', onEffectChange);
+      clearModalFields();
     }
   };
 
   imageModalCloseButton.addEventListener('click', closeImageModalOnClick);
   document.addEventListener('keydown', closeImageModalOnEsc);
-
 };
 
-const uploadImage = () => {
-  const documentBody = document.querySelector('body');
-  const uploadForm = document.querySelector('.img-upload__form');
-  const uploadButton = uploadForm.querySelector('.img-upload__input');
-  const editImageForm = uploadForm.querySelector('.img-upload__overlay');
+// Создаем функцию, которая вешает слушатель на кнопку загрузки фото и открывает модальное окно
+// редактирования фотографии
 
+const uploadImage = () => {
   uploadButton.addEventListener('change', () => {
     editImageForm.classList.remove('hidden');
     documentBody.classList.add('modal--open');
     openImageModal();
   });
 };
-
 
 export {uploadImage, openImageModal};
