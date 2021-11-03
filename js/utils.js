@@ -114,6 +114,7 @@ const openFullPhoto = (thumbnail) => {
     document.removeEventListener('keydown', onPopupEscKeydown);
   };
 
+
   // Объявляем обработчик кнопки закрытия по нажатию Esc
 
   const onPopupEscKeydown = (evt) => {
