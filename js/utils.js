@@ -132,4 +132,4 @@ const openFullPhoto = (thumbnail) => {
 
 // Export
 
-export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto};
+export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey};

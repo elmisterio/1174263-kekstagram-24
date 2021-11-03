@@ -1,8 +1,10 @@
+import {isEscapeKey} from './utils.js';
+
 // Записываем элементы формы в переменные
 const documentBody = document.querySelector('body');
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadButton = uploadForm.querySelector('.img-upload__input');
-const editImageForm = uploadForm.querySelector('.img-upload__overlay');
+const editingImageForm = uploadForm.querySelector('.img-upload__overlay');
 
 // Создаем функцию, открывающую окно редактирования фото
 
@@ -286,7 +288,7 @@ const openImageModal = () => {
     commentInput.setCustomValidity('');
   };
 
-  // Вешаем слушатели событий
+  // Вешаем слушатели событий на элементы формы
 
   uploadForm.addEventListener('submit', onFormSubmit);
   hashtagInput.addEventListener('input', onHashtagInput);
@@ -296,30 +298,35 @@ const openImageModal = () => {
 
   const imageModalCloseButton = uploadForm.querySelector('.img-upload__cancel');
 
-  const clearModalFields = () => {
+  const clearModalValues = () => {
     uploadButton.value = '';
     hashtagInput.value = '';
     commentInput.value = '';
+    imageScaleValueField.value = '100%';
+    image.style.filter = '';
+    image.className = ''
+    image.classList.add('effects__preview--none');
     slider.noUiSlider.destroy();
   };
 
-  const closeImageModalOnClick = () => {
-    editImageForm.classList.add('hidden');
-    documentBody.classList.remove('modal--open');
-    imageModalCloseButton.removeEventListener('click', closeImageModalOnClick);
-    effectsList.removeEventListener('change', onEffectChange);
-    clearModalFields();
-  };
-
-  const closeImageModalOnEsc = (evt) => {
-    if (evt.key === 'Escape') {
-      editImageForm.classList.add('hidden');
-      documentBody.classList.remove('modal--open');
-      document.removeEventListener('keydown', closeImageModalOnEsc);
-      effectsList.removeEventListener('change', onEffectChange);
-      clearModalFields();
+  const closeImageModalOnEsc = () => {
+    if (isEscapeKey) {
+      closeImageModalOnClick();
     }
   };
+
+  const closeImageModalOnClick = () => {
+    editingImageForm.classList.add('hidden');
+    documentBody.classList.remove('modal--open');
+    imageModalCloseButton.removeEventListener('click', closeImageModalOnClick);
+    document.removeEventListener('keydown', closeImageModalOnEsc);
+    effectsList.removeEventListener('change', onEffectChange);
+    uploadForm.removeEventListener('submit', onFormSubmit);
+    hashtagInput.removeEventListener('input', onHashtagInput);
+    commentInput.removeEventListener('input', onCommentInput);
+    clearModalValues();
+  };
+
 
   imageModalCloseButton.addEventListener('click', closeImageModalOnClick);
   document.addEventListener('keydown', closeImageModalOnEsc);
@@ -330,7 +337,7 @@ const openImageModal = () => {
 
 const uploadImage = () => {
   uploadButton.addEventListener('change', () => {
-    editImageForm.classList.remove('hidden');
+    editingImageForm.classList.remove('hidden');
     documentBody.classList.add('modal--open');
     openImageModal();
   });
