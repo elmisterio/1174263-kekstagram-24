@@ -105,24 +105,23 @@ const openFullPhoto = (thumbnail) => {
 
   documentBody.classList.add('modal-open');
 
-  // Объявляем функцию, которая закрывает окно и удаляет обработчики
-
-  const closePhotoModal = () => {
-    bigPicture.classList.add('hidden');
-    documentBody.classList.remove('modal-open');
-    bigPictureCloseButton.removeEventListener('click', closePhotoModal);
-    document.removeEventListener('keydown', onPopupEscKeydown);
-  };
-
-
   // Объявляем обработчик кнопки закрытия по нажатию Esc
 
   const onPopupEscKeydown = (evt) => {
-    if (isEscapeKey) {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       closePhotoModal();
     }
   };
+
+  // Объявляем функцию, которая закрывает окно и удаляет обработчики
+
+  function closePhotoModal() {
+    bigPicture.classList.add('hidden');
+    documentBody.classList.remove('modal-open');
+    bigPictureCloseButton.removeEventListener('click', closePhotoModal);
+    document.removeEventListener('keydown', onPopupEscKeydown);
+  }
 
   // Вешаем обработчики на кнопку закрыти и на документ
 

@@ -31,7 +31,6 @@ const openImageModal = () => {
     if (scaleValue >= 25 && scaleValue <= 75) {
       scaleValue += 25;
       imageScaleValueField.value = `${scaleValue}%`;
-      image.style.transform = `scale(${scaleValue / 100})`;
       changeImageScaleStyle();
     }
   };
@@ -55,10 +54,12 @@ const openImageModal = () => {
   // Эффекты
 
   const effectsList = uploadForm.querySelector('.effects__list');
+  const effectRadioInputNone = uploadForm.querySelector('#effect-none');
   const effectLevelValueInput = uploadForm.querySelector('.effect-level__value');
   const sliderContainer = uploadForm.querySelector('.img-upload__effect-level');
 
   sliderContainer.style.display = 'none';
+  effectRadioInputNone.checked = true;
 
   const onEffectChange = (evt) => {
     if (evt.target.matches('input[type="radio"]')) {
@@ -66,6 +67,7 @@ const openImageModal = () => {
       image.classList.add(`effects__preview--${evt.target.value}`);
       sliderContainer.style.display = '';
       effectLevelValueInput.value = '';
+
       let effectName;
       let unitMeasure;
 
@@ -89,7 +91,7 @@ const openImageModal = () => {
         });
 
         unitMeasure = '';
-        image.style.filter = `${effectName}(${ effectLevelValueInput.value})`;
+        image.style.filter = `${effectName}(${effectLevelValueInput.value})`;
       }
 
       if (image.classList.contains('effects__preview--sepia')) {
@@ -104,6 +106,7 @@ const openImageModal = () => {
             'max': [1],
           },
         });
+
         unitMeasure = '';
         image.style.filter = `${effectName}(${effectLevelValueInput.value})`;
       }
@@ -264,13 +267,14 @@ const openImageModal = () => {
 
     if (commentInput.value.length > 140) {
       commentInput.setCustomValidity('Длина комментария не может составлять больше 140 символов');
+      commentInput.reportValidity();
       return false;
     }
 
     return true;
   };
 
-  // Создаем функции-обработчики отправки формы
+  // Создаем функции-обработчики для полей формы
 
   const onFormSubmit = (evt) => {
     const hashs = hashtagInput.value.split(' ');
@@ -288,11 +292,36 @@ const openImageModal = () => {
     commentInput.setCustomValidity('');
   };
 
+  const onFieldFocusKeydown = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.stopPropagation();
+    }
+  };
+
+  const onFieldFocus = () => {
+    hashtagInput.addEventListener('keydown', onFieldFocusKeydown);
+    commentInput.addEventListener('keydown', onFieldFocusKeydown);
+
+  };
+
+  const onFieldBlur = () => {
+    hashtagInput.removeEventListener('focus', onFieldFocus);
+    commentInput.removeEventListener('focus', onFieldFocus);
+    hashtagInput.removeEventListener('focus', onFieldFocusKeydown);
+    commentInput.removeEventListener('focus', onFieldFocusKeydown);
+  };
+
   // Вешаем слушатели событий на элементы формы
 
   uploadForm.addEventListener('submit', onFormSubmit);
   hashtagInput.addEventListener('input', onHashtagInput);
   commentInput.addEventListener('input', onCommentInput);
+
+  hashtagInput.addEventListener('focus', onFieldFocus);
+  commentInput.addEventListener('focus', onFieldFocus);
+
+  hashtagInput.addEventListener('blur', onFieldBlur);
+  commentInput.addEventListener('blur', onFieldBlur);
 
   // Закрытие окна
 
@@ -304,28 +333,36 @@ const openImageModal = () => {
     commentInput.value = '';
     imageScaleValueField.value = '100%';
     image.style.filter = '';
-    image.className = ''
-    image.classList.add('effects__preview--none');
     slider.noUiSlider.destroy();
+    image.className = '';
+    image.classList.add('effects__preview--none');
   };
 
-  const closeImageModalOnEsc = () => {
-    if (isEscapeKey) {
+  const closeImageModalOnEsc = (evt) => {
+    if (isEscapeKey(evt)) {
       closeImageModalOnClick();
     }
   };
 
-  const closeImageModalOnClick = () => {
-    editingImageForm.classList.add('hidden');
-    documentBody.classList.remove('modal--open');
+  const removeImageModalEventListeners = () => {
     imageModalCloseButton.removeEventListener('click', closeImageModalOnClick);
     document.removeEventListener('keydown', closeImageModalOnEsc);
+    reduceScaleControl.removeEventListener('click', onReduceControlClick);
+    increaseScaleControl.removeEventListener('click', onIncreaseControlClick);
     effectsList.removeEventListener('change', onEffectChange);
     uploadForm.removeEventListener('submit', onFormSubmit);
     hashtagInput.removeEventListener('input', onHashtagInput);
     commentInput.removeEventListener('input', onCommentInput);
-    clearModalValues();
+    hashtagInput.removeEventListener('blur', onFieldBlur);
+    commentInput.removeEventListener('blur', onFieldBlur);
   };
+
+  function closeImageModalOnClick () {
+    editingImageForm.classList.add('hidden');
+    documentBody.classList.remove('modal--open');
+    removeImageModalEventListeners();
+    clearModalValues();
+  }
 
 
   imageModalCloseButton.addEventListener('click', closeImageModalOnClick);
