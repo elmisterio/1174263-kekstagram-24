@@ -1,7 +1,4 @@
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable no-console */
-/* eslint-disable no-unused-vars */
-
+/* eslint-disable no-use-before-define */
 // Функция, возвращающая случайное целое число из переданного диапазона включительно
 
 function getRandomInt(min, max) {
@@ -24,6 +21,10 @@ function isStringFit(string, maxlength) {
   return +string.length <= maxlength;
 }
 
+// Проверка нажатия клавиши Esc
+
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
 // Отрисовка миниатюр пользователей
 
 const insertPhotoThumbnail = (data, node) => {
@@ -36,6 +37,7 @@ const insertPhotoThumbnail = (data, node) => {
 
   const elementImg = element.querySelector('.picture__img');
   elementImg.src = data.url;
+  elementImg.setAttribute('data-id', data.id);
 
   const elementLikes = element.querySelector('.picture__likes');
   elementLikes.textContent = data.likes;
@@ -53,6 +55,9 @@ const insertPhotoThumbnail = (data, node) => {
 // Отрисовка окна с полноразмерным изображением
 
 const openFullPhoto = (thumbnail) => {
+
+  // Записываем в переменные элементы модального окна с полным изображением
+
   const documentBody = document.querySelector('body');
 
   const bigPicture = document.querySelector('.big-picture');
@@ -68,7 +73,12 @@ const openFullPhoto = (thumbnail) => {
 
   const fragment = document.createDocumentFragment();
 
+  // Показываем модальное окно
+
   bigPicture.classList.remove('hidden');
+
+  // Заполняем окно данными из массива
+
   bigPictureImg.src = thumbnail.url;
   bigPictureDescription.textContent = thumbnail.description;
   bigPictureLikesCount.textContent = thumbnail.likes;
@@ -95,18 +105,31 @@ const openFullPhoto = (thumbnail) => {
 
   documentBody.classList.add('modal-open');
 
-  bigPictureCloseButton.addEventListener('click', () => {
-    bigPicture.classList.add('hidden');
-  });
+  // Объявляем обработчик кнопки закрытия по нажатию Esc
 
-  document.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Escape') {
-      bigPicture.classList.add('hidden');
+  const onPopupEscKeydown = (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      closePhotoModal();
     }
-  });
+  };
+
+  // Объявляем функцию, которая закрывает окно и удаляет обработчики
+
+  function closePhotoModal() {
+    bigPicture.classList.add('hidden');
+    documentBody.classList.remove('modal-open');
+    bigPictureCloseButton.removeEventListener('click', closePhotoModal);
+    document.removeEventListener('keydown', onPopupEscKeydown);
+  }
+
+  // Вешаем обработчики на кнопку закрыти и на документ
+
+  bigPictureCloseButton.addEventListener('click', closePhotoModal);
+  document.addEventListener('keydown', onPopupEscKeydown);
 
 };
 
 // Export
 
-export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto};
+export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey};
