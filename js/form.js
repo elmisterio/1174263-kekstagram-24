@@ -1,4 +1,5 @@
 import {isEscapeKey} from './utils.js';
+import {sendData} from './fetch.js';
 
 // Записываем элементы формы в переменные
 const documentBody = document.querySelector('body');
@@ -274,14 +275,144 @@ const openImageModal = () => {
     return true;
   };
 
+  // Создаем функции, которые рисуют и закрывают попап об успешной отправке формы
+
+  const showSuccesPopup = () => {
+
+    // Закрываем модальное окно
+
+    closeImageModalOnClick();
+
+    // Клонируем шаблон и помещаем в body
+
+    const succesTemplate = document.querySelector('#success').content;
+    const template = succesTemplate.querySelector('.success');
+
+    const fragment = document.createDocumentFragment();
+
+    const element = template.cloneNode(true);
+
+    fragment.appendChild(element);
+
+    documentBody.appendChild(fragment);
+
+    // Ищем кнопку закрытия в модалке
+
+    const succesPopupCloseButton = document.querySelector('.success__button');
+
+    // Сначала объявим функцию закрытия по Esc
+
+    const closeSuccesPopupOnEsc = (evt) => {
+      if (isEscapeKey(evt)) {
+        closeSuccesPopupOnClick();
+      }
+    };
+
+    // Далее объявим функцию закрытия по клику за пределами попапа
+
+    const closeSuccesPopupOnClickOutside = (evt) => {
+      if (evt.target.matches('.success')) {
+        closeSuccesPopupOnClick();
+      }
+    };
+
+    // И саму функцию, которая закрывает окно
+
+    function closeSuccesPopupOnClick () {
+      const succesPopup = document.querySelector('.success');
+      documentBody.removeChild(succesPopup);
+      document.removeEventListener('click', closeSuccesPopupOnClickOutside);
+      succesPopupCloseButton.removeEventListener('click', closeSuccesPopupOnClick);
+      document.removeEventListener('keydown', closeSuccesPopupOnEsc);
+    }
+
+    // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
+
+    document.addEventListener('click', closeSuccesPopupOnClickOutside);
+    succesPopupCloseButton.addEventListener('click', closeSuccesPopupOnClick);
+    document.addEventListener('keydown', closeSuccesPopupOnEsc);
+  };
+
+  // Создаем функцию, которая показывает окно с ошибкой отправки формы
+
+  const showErrorPopup = () => {
+
+    // Закрываем модальное окно
+
+    closeImageModalOnClick();
+
+    // Клонируем шаблон и помещаем в body
+
+    const errorTemplate = document.querySelector('#error').content;
+    const template = errorTemplate.querySelector('.error');
+
+    const fragment = document.createDocumentFragment();
+
+    const element = template.cloneNode(true);
+
+    fragment.appendChild(element);
+
+    documentBody.appendChild(fragment);
+
+    // Ищем кнопку закрытия в модалке
+
+    const errorPopupCloseButton = document.querySelector('.error__button');
+
+    // Сначала объявим функцию закрытия по Esc
+
+    const closeErrorPopupOnEsc = (evt) => {
+      if (isEscapeKey(evt)) {
+        closeErrorPopupOnClick();
+      }
+    };
+
+    // Далее объявим функцию закрытия по клику за пределами попапа
+
+    const closeErrorPopupOnClickOutside = (evt) => {
+      if (evt.target.matches('.error')) {
+        closeErrorPopupOnClick();
+      }
+    };
+
+    // И саму функцию, которая закрывает окно
+
+    function closeErrorPopupOnClick () {
+      const errorPopup = document.querySelector('.error');
+      documentBody.removeChild(errorPopup);
+      document.removeEventListener('click', closeErrorPopupOnClickOutside);
+      errorPopupCloseButton.removeEventListener('click', closeErrorPopupOnClick);
+      document.removeEventListener('keydown', closeErrorPopupOnEsc);
+    }
+
+    // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
+
+    document.addEventListener('click', closeErrorPopupOnClickOutside);
+    errorPopupCloseButton.addEventListener('click', closeErrorPopupOnClick);
+    document.addEventListener('keydown', closeErrorPopupOnEsc);
+  };
+
   // Создаем функции-обработчики для полей формы
 
   const onFormSubmit = (evt) => {
+    evt.preventDefault();
     const hashs = hashtagInput.value.split(' ');
 
-    if (!isHashtagsValid(hashs) || !isCommentValid()) {
-      evt.preventDefault();
+    if (!isHashtagsValid(hashs)) {
+      hashtagInput.style.outline = '1px solid red';
+    } else {
+      hashtagInput.style.outline = '1px inset blue';
     }
+
+    if (!isCommentValid()) {
+      commentInput.style.outline = '1px solid red';
+    } else {
+      commentInput.style.outline = '1px inset blue';
+    }
+
+    const formData = new FormData(evt.target);
+
+    sendData(showSuccesPopup, showErrorPopup, formData);
+
   };
 
   const onHashtagInput = () => {

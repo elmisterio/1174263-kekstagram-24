@@ -77,31 +77,65 @@ const openFullPhoto = (thumbnail) => {
 
   bigPicture.classList.remove('hidden');
 
+  // Описываем функцию-итератор комментариев
+
+  const renderComments = (commentsArr) => {
+    commentList.textContent = '';
+    commentsArr.forEach((comment) => {
+      const element = commentItem.cloneNode(true);
+      const elementImg = element.querySelector('.social__picture');
+      elementImg.src = comment.avatar;
+      elementImg.alt = comment.name;
+
+      const elementText = element.querySelector('.social__text');
+      elementText.textContent = comment.message;
+
+      fragment.appendChild(element);
+    });
+  };
+
   // Заполняем окно данными из массива
 
   bigPictureImg.src = thumbnail.url;
   bigPictureDescription.textContent = thumbnail.description;
   bigPictureLikesCount.textContent = thumbnail.likes;
 
-  const thumbnailComments = thumbnail.comments;
+  const thumbnailCommentsInitial = thumbnail.comments;
+  const thumbnailCommentsLength = thumbnailCommentsInitial.length;
 
-  thumbnailComments.forEach((comment) => {
-    const element = commentItem.cloneNode(true);
-    const elementImg = element.querySelector('.social__picture');
-    elementImg.src = comment.avatar;
-    elementImg.alt = comment.name;
+  let thumbnailComments;
 
-    const elementText = element.querySelector('.social__text');
-    elementText.textContent = comment.message;
+  if (thumbnailCommentsLength <= 5) {
+    commentsLoader.classList.add('hidden');
+    commentCount.textContent = '';
+    commentCount.innerHTML = `${thumbnailCommentsLength} из <span class="comments-count">${thumbnailCommentsLength}</span> комментариев`;
+    thumbnailComments = thumbnailCommentsInitial;
+    renderComments(thumbnailComments);
+  }
 
-    fragment.appendChild(element);
-  });
+  let finalCommentsAmount = 5;
+
+  if (thumbnailCommentsLength > 5) {
+    commentsLoader.classList.remove('hidden');
+
+    thumbnailComments = thumbnailCommentsInitial.slice(0, finalCommentsAmount);
+    renderComments(thumbnailComments);
+  }
+
+  const loadMoreComments = () => {
+    finalCommentsAmount += 5;
+    thumbnailComments = thumbnailCommentsInitial.slice(0, finalCommentsAmount);
+    renderComments(thumbnailComments);
+  };
+
+
+  commentsLoader.addEventListener('click', loadMoreComments);
 
   commentList.innerHTML = '';
   commentList.appendChild(fragment);
 
-  commentCount.classList.add('hidden');
-  commentsLoader.classList.add('hidden');
+  // commentCount.classList.add('hidden');
+
 
   documentBody.classList.add('modal-open');
 

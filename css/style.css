@@ -694,6 +694,12 @@ main {
   color: #000000;
 
   border-radius: 5px;
+  outline: 1px inset blue;
+}
+
+.text__hashtags:focus,
+.text__description:focus {
+  outline: 1px inset blue;
 }
 
 .text__description {
@@ -708,6 +714,7 @@ main {
   color: #000000;
 
   border-radius: 5px;
+  outline: 1px inset blue;
 }
 
 
