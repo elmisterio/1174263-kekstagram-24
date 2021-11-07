@@ -27,6 +27,8 @@ const isEscapeKey = (evt) => evt.key === 'Escape';
 
 // Отрисовка миниатюр пользователей
 
+const documentBody = document.querySelector('body');
+
 const insertPhotoThumbnail = (data, node) => {
   const pictureTemplate = document.querySelector('#picture').content;
   const template = pictureTemplate.querySelector('.picture');
@@ -58,8 +60,6 @@ const openFullPhoto = (thumbnail) => {
 
   // Записываем в переменные элементы модального окна с полным изображением
 
-  const documentBody = document.querySelector('body');
-
   const bigPicture = document.querySelector('.big-picture');
   const bigPictureImg = bigPicture.querySelector('.big-picture__img img');
   const bigPictureCloseButton = bigPicture.querySelector('.big-picture__cancel');
@@ -71,17 +71,24 @@ const openFullPhoto = (thumbnail) => {
   const commentCount = bigPicture.querySelector('.social__comment-count');
   const commentsLoader = bigPicture.querySelector('.comments-loader');
 
-  const fragment = document.createDocumentFragment();
 
   // Показываем модальное окно
 
   bigPicture.classList.remove('hidden');
 
-  // Описываем функцию-итератор комментариев
+  // Заполняем окно данными из массива
+
+  bigPictureImg.src = thumbnail.url;
+  bigPictureDescription.textContent = thumbnail.description;
+  bigPictureLikesCount.textContent = thumbnail.likes;
+
+  // Описываем функцию-итератор для рендера комментариев
 
   const renderComments = (commentsArr) => {
-    commentList.textContent = '';
+    commentList.innerHTML = '';
     commentsArr.forEach((comment) => {
+      const fragment = document.createDocumentFragment();
+
       const element = commentItem.cloneNode(true);
       const elementImg = element.querySelector('.social__picture');
       elementImg.src = comment.avatar;
@@ -91,51 +98,54 @@ const openFullPhoto = (thumbnail) => {
       elementText.textContent = comment.message;
 
       fragment.appendChild(element);
+      commentList.appendChild(fragment);
     });
   };
 
-  // Заполняем окно данными из массива
-
-  bigPictureImg.src = thumbnail.url;
-  bigPictureDescription.textContent = thumbnail.description;
-  bigPictureLikesCount.textContent = thumbnail.likes;
+  // Показываем комментарии
 
   const thumbnailCommentsInitial = thumbnail.comments;
-  const thumbnailCommentsLength = thumbnailCommentsInitial.length;
 
   let thumbnailComments;
+  let currentCommentsAmount = 5;
+  const totalCommentsAmount = thumbnailCommentsInitial.length;
 
-  if (thumbnailCommentsLength <= 5) {
+  if (thumbnailCommentsInitial.length <= 5) {
     commentsLoader.classList.add('hidden');
+
     commentCount.textContent = '';
-    commentCount.innerHTML = `${thumbnailCommentsLength} из <span class="comments-count">${thumbnailCommentsLength}</span> комментариев`;
+    commentCount.innerHTML = `${totalCommentsAmount} из <span class="comments-count">${totalCommentsAmount}</span> комментариев`;
+
     thumbnailComments = thumbnailCommentsInitial;
     renderComments(thumbnailComments);
-  }
-
-  let finalCommentsAmount = 5;
-
-  if (thumbnailCommentsLength > 5) {
+  } else {
     commentsLoader.classList.remove('hidden');
+    commentCount.textContent = '';
+    commentCount.innerHTML = `${currentCommentsAmount} из <span class="comments-count">${totalCommentsAmount}</span> комментариев`;
 
-    thumbnailComments = thumbnailCommentsInitial.slice(0, finalCommentsAmount);
+    thumbnailComments = thumbnailCommentsInitial.slice(0, currentCommentsAmount);
     renderComments(thumbnailComments);
   }
 
-  const loadMoreComments = () => {
-    finalCommentsAmount += 5;
-    thumbnailComments = thumbnailCommentsInitial.slice(0, finalCommentsAmount);
+  const onClickMoreComments = () => {
+    let commentsRemainAmount = totalCommentsAmount - currentCommentsAmount;
+    if (commentsRemainAmount <= 5) {
+      commentsLoader.classList.add('hidden');
+      commentCount.textContent = '';
+      commentCount.innerHTML = `${totalCommentsAmount} из <span class="comments-count">${totalCommentsAmount}</span> комментариев`;
+      thumbnailComments = thumbnailCommentsInitial;
+    } else {
+      currentCommentsAmount += 5;
+      commentsRemainAmount -= 5;
+
+      commentCount.textContent = '';
+      commentCount.innerHTML = `${currentCommentsAmount} из <span class="comments-count">${totalCommentsAmount}</span> комментариев`;
+      thumbnailComments = thumbnailCommentsInitial.slice(0, currentCommentsAmount);
+    }
     renderComments(thumbnailComments);
   };
 
-
-  commentsLoader.addEventListener('click', loadMoreComments);
-
-  commentList.innerHTML = '';
-  commentList.appendChild(fragment);
-
-  // commentCount.classList.add('hidden');
-
+  commentsLoader.addEventListener('click', onClickMoreComments);
 
   documentBody.classList.add('modal-open');
 
@@ -155,6 +165,7 @@ const openFullPhoto = (thumbnail) => {
     documentBody.classList.remove('modal-open');
     bigPictureCloseButton.removeEventListener('click', closePhotoModal);
     document.removeEventListener('keydown', onPopupEscKeydown);
+    commentsLoader.removeEventListener('click', onClickMoreComments);
   }
 
   // Вешаем обработчики на кнопку закрыти и на документ
@@ -164,6 +175,66 @@ const openFullPhoto = (thumbnail) => {
 
 };
 
+// Окно с ошибкой загрузки миниатюр
+
+const showErrorGetDataPopup = () => {
+
+  // Клонируем шаблон и помещаем в body
+
+  const errorTemplate = document.querySelector('#error').content;
+  const template = errorTemplate.querySelector('.error');
+
+  const fragment = document.createDocumentFragment();
+
+  const element = template.cloneNode(true);
+  const errorTitle = element.querySelector('.error__title');
+  errorTitle.textContent = 'Ошибка загрузки фотографий';
+
+  const errorButton = element.querySelector('.error__button');
+  errorButton.textContent = 'Ок';
+
+  fragment.appendChild(element);
+
+  documentBody.appendChild(fragment);
+
+  // Ищем кнопку закрытия в модалке
+
+  const errorPopupCloseButton = document.querySelector('.error__button');
+
+  // Сначала объявим функцию закрытия по Esc
+
+  const closeErrorPopupOnEsc = (evt) => {
+    if (isEscapeKey(evt)) {
+      closeErrorPopupOnClick();
+    }
+  };
+
+  // Далее объявим функцию закрытия по клику за пределами попапа
+
+  const closeErrorPopupOnClickOutside = (evt) => {
+    if (evt.target.matches('.error')) {
+      closeErrorPopupOnClick();
+    }
+  };
+
+  // И саму функцию, которая закрывает окно
+
+  function closeErrorPopupOnClick () {
+    const errorPopup = document.querySelector('.error');
+    documentBody.removeChild(errorPopup);
+    document.removeEventListener('click', closeErrorPopupOnClickOutside);
+    errorPopupCloseButton.removeEventListener('click', closeErrorPopupOnClick);
+    document.removeEventListener('keydown', closeErrorPopupOnEsc);
+  }
+
+  // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
+
+  document.addEventListener('click', closeErrorPopupOnClickOutside);
+  errorPopupCloseButton.addEventListener('click', closeErrorPopupOnClick);
+  document.addEventListener('keydown', closeErrorPopupOnEsc);
+};
+
+
 // Export
 
-export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey};
+export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey, showErrorGetDataPopup};

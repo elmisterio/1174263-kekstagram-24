@@ -7,6 +7,6 @@ const pictures = document.querySelector('.pictures');
 
 getData(pictures);
 
-// Вызываем обработчик загрузки изображения и открываем окно редактирования
+// Вызываем обработчик загрузки изображения
 
 uploadImage();

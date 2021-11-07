@@ -1,8 +1,14 @@
-import {insertPhotoThumbnail, openFullPhoto} from './utils.js';
+import {insertPhotoThumbnail, openFullPhoto, showErrorGetDataPopup} from './utils.js';
 
 const getData = (node) => {
   fetch('https://24.javascript.pages.academy/kekstagram/data')
-    .then((response) => response.json())
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+    })
     .then((data) => {
       data.forEach((photoItem) => {
         insertPhotoThumbnail(photoItem, node);
@@ -14,6 +20,9 @@ const getData = (node) => {
           openFullPhoto(data[evt.target.dataset.id]);
         }
       });
+    })
+    .catch(() => {
+      showErrorGetDataPopup();
     });
 };
 
