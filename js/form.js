@@ -279,10 +279,6 @@ const openImageModal = () => {
 
   const showSuccesPopup = () => {
 
-    // Закрываем модальное окно
-
-    closeImageModalOnClick();
-
     // Клонируем шаблон и помещаем в body
 
     const succesTemplate = document.querySelector('#success').content;
@@ -302,9 +298,9 @@ const openImageModal = () => {
 
     // Сначала объявим функцию закрытия по Esc
 
-    const closeSuccesPopupOnEsc = (evt) => {
+    const closeSuccessPopupOnEsc = (evt) => {
       if (isEscapeKey(evt)) {
-        closeSuccesPopupOnClick();
+        closeSuccesPopup();
       }
     };
 
@@ -312,34 +308,30 @@ const openImageModal = () => {
 
     const closeSuccesPopupOnClickOutside = (evt) => {
       if (evt.target.matches('.success')) {
-        closeSuccesPopupOnClick();
+        closeSuccesPopup();
       }
     };
 
     // И саму функцию, которая закрывает окно
 
-    function closeSuccesPopupOnClick () {
+    function closeSuccesPopup () {
       const succesPopup = document.querySelector('.success');
       documentBody.removeChild(succesPopup);
       document.removeEventListener('click', closeSuccesPopupOnClickOutside);
-      succesPopupCloseButton.removeEventListener('click', closeSuccesPopupOnClick);
-      document.removeEventListener('keydown', closeSuccesPopupOnEsc);
+      succesPopupCloseButton.removeEventListener('click', closeSuccesPopup);
+      document.removeEventListener('keydown', closeSuccessPopupOnEsc);
     }
 
     // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
 
     document.addEventListener('click', closeSuccesPopupOnClickOutside);
-    succesPopupCloseButton.addEventListener('click', closeSuccesPopupOnClick);
-    document.addEventListener('keydown', closeSuccesPopupOnEsc);
+    succesPopupCloseButton.addEventListener('click', closeSuccesPopup);
+    document.addEventListener('keydown', closeSuccessPopupOnEsc);
   };
 
   // Создаем функцию, которая показывает окно с ошибкой отправки формы
 
   const showErrorPopup = () => {
-
-    // Закрываем модальное окно
-
-    closeImageModalOnClick();
 
     // Клонируем шаблон и помещаем в body
 
@@ -362,7 +354,7 @@ const openImageModal = () => {
 
     const closeErrorPopupOnEsc = (evt) => {
       if (isEscapeKey(evt)) {
-        closeErrorPopupOnClick();
+        closeErrorPopup();
       }
     };
 
@@ -370,24 +362,24 @@ const openImageModal = () => {
 
     const closeErrorPopupOnClickOutside = (evt) => {
       if (evt.target.matches('.error')) {
-        closeErrorPopupOnClick();
+        closeErrorPopup();
       }
     };
 
     // И саму функцию, которая закрывает окно
 
-    function closeErrorPopupOnClick () {
+    function closeErrorPopup () {
       const errorPopup = document.querySelector('.error');
       documentBody.removeChild(errorPopup);
       document.removeEventListener('click', closeErrorPopupOnClickOutside);
-      errorPopupCloseButton.removeEventListener('click', closeErrorPopupOnClick);
+      errorPopupCloseButton.removeEventListener('click', closeErrorPopup);
       document.removeEventListener('keydown', closeErrorPopupOnEsc);
     }
 
     // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
 
     document.addEventListener('click', closeErrorPopupOnClickOutside);
-    errorPopupCloseButton.addEventListener('click', closeErrorPopupOnClick);
+    errorPopupCloseButton.addEventListener('click', closeErrorPopup);
     document.addEventListener('keydown', closeErrorPopupOnEsc);
   };
 
@@ -398,29 +390,34 @@ const openImageModal = () => {
     const hashs = hashtagInput.value.split(' ');
 
     if (!isHashtagsValid(hashs)) {
-      hashtagInput.style.outline = '1px solid red';
+      hashtagInput.classList.add('text__hashtags--error');
     } else {
-      hashtagInput.style.outline = '1px inset blue';
+      hashtagInput.classList.remove('text__hashtags--error');
+
     }
 
     if (!isCommentValid()) {
-      commentInput.style.outline = '1px solid red';
+      commentInput.classList.add('text__description--error');
     } else {
-      commentInput.style.outline = '1px inset blue';
+      commentInput.classList.remove('text__description--error');
     }
 
-    const formData = new FormData(evt.target);
-
-    sendData(showSuccesPopup, showErrorPopup, formData);
+    if (isHashtagsValid(hashs) && isCommentValid()) {
+      const formData = new FormData(evt.target);
+      closeImageModal();
+      sendData(formData, showSuccesPopup, showErrorPopup);
+    }
 
   };
 
   const onHashtagInput = () => {
     hashtagInput.setCustomValidity('');
+    hashtagInput.classList.remove('text__hashtags--error');
   };
 
   const onCommentInput = () => {
     commentInput.setCustomValidity('');
+    commentInput.classList.remove('text__description--error');
   };
 
   const onFieldFocusKeydown = (evt) => {
@@ -471,12 +468,12 @@ const openImageModal = () => {
 
   const closeImageModalOnEsc = (evt) => {
     if (isEscapeKey(evt)) {
-      closeImageModalOnClick();
+      closeImageModal();
     }
   };
 
   const removeImageModalEventListeners = () => {
-    imageModalCloseButton.removeEventListener('click', closeImageModalOnClick);
+    imageModalCloseButton.removeEventListener('click', closeImageModal);
     document.removeEventListener('keydown', closeImageModalOnEsc);
     reduceScaleControl.removeEventListener('click', onReduceControlClick);
     increaseScaleControl.removeEventListener('click', onIncreaseControlClick);
@@ -488,7 +485,7 @@ const openImageModal = () => {
     commentInput.removeEventListener('blur', onFieldBlur);
   };
 
-  function closeImageModalOnClick () {
+  function closeImageModal () {
     editingImageForm.classList.add('hidden');
     documentBody.classList.remove('modal--open');
     removeImageModalEventListeners();
@@ -496,7 +493,7 @@ const openImageModal = () => {
   }
 
 
-  imageModalCloseButton.addEventListener('click', closeImageModalOnClick);
+  imageModalCloseButton.addEventListener('click', closeImageModal);
   document.addEventListener('keydown', closeImageModalOnEsc);
 };
 

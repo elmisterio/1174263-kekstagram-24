@@ -1,32 +1,20 @@
-import {insertPhotoThumbnail, openFullPhoto, showErrorGetDataPopup} from './utils.js';
+const getData = (success, error) => fetch('https://24.javascript.pages.academy/kekstagram/data')
+  .then((response) => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+  })
+  .then((data) => {
+    success(data);
+    return data;
+  })
+  .catch(() => {
+    error();
+  });
 
-const getData = (node) => {
-  fetch('https://24.javascript.pages.academy/kekstagram/data')
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error(`${response.status} ${response.statusText}`);
-      }
-    })
-    .then((data) => {
-      data.forEach((photoItem) => {
-        insertPhotoThumbnail(photoItem, node);
-      });
-
-      node.addEventListener('click', (evt) => {
-        if (evt.target.matches('.picture__img')) {
-          evt.preventDefault();
-          openFullPhoto(data[evt.target.dataset.id]);
-        }
-      });
-    })
-    .catch(() => {
-      showErrorGetDataPopup();
-    });
-};
-
-const sendData = (succes, error, data) => {
+const sendData = (data, success, error) => {
   fetch('https://24.javascript.pages.academy/kekstagram',
     {
       method: 'POST',
@@ -35,7 +23,7 @@ const sendData = (succes, error, data) => {
     })
     .then((response) => {
       if (response.ok) {
-        succes();
+        success();
       } else {
         throw new Error(`${response.status} ${response.statusText}`);
       }

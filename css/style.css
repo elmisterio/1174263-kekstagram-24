@@ -697,10 +697,10 @@ main {
   outline: 1px inset blue;
 }
 
-.text__hashtags:focus,
+/* .text__hashtags:focus,
 .text__description:focus {
   outline: 1px inset blue;
-}
+} */
 
 .text__description {
   width: 450px;
@@ -716,6 +716,12 @@ main {
   border-radius: 5px;
   outline: 1px inset blue;
 }
+
+.text__hashtags--error,
+.text__description--error {
+  outline: 1px solid red;
+}
+
 
 
 /**
