@@ -1,4 +1,5 @@
 import {isEscapeKey} from './utils.js';
+import {sendData} from './fetch.js';
 
 // Записываем элементы формы в переменные
 const documentBody = document.querySelector('body');
@@ -274,22 +275,149 @@ const openImageModal = () => {
     return true;
   };
 
+  // Создаем функции, которые рисуют и закрывают попап об успешной отправке формы
+
+  const showSuccesPopup = () => {
+
+    // Клонируем шаблон и помещаем в body
+
+    const succesTemplate = document.querySelector('#success').content;
+    const template = succesTemplate.querySelector('.success');
+
+    const fragment = document.createDocumentFragment();
+
+    const element = template.cloneNode(true);
+
+    fragment.appendChild(element);
+
+    documentBody.appendChild(fragment);
+
+    // Ищем кнопку закрытия в модалке
+
+    const succesPopupCloseButton = document.querySelector('.success__button');
+
+    // Сначала объявим функцию закрытия по Esc
+
+    const closeSuccessPopupOnEsc = (evt) => {
+      if (isEscapeKey(evt)) {
+        closeSuccesPopup();
+      }
+    };
+
+    // Далее объявим функцию закрытия по клику за пределами попапа
+
+    const closeSuccesPopupOnClickOutside = (evt) => {
+      if (evt.target.matches('.success')) {
+        closeSuccesPopup();
+      }
+    };
+
+    // И саму функцию, которая закрывает окно
+
+    function closeSuccesPopup () {
+      const succesPopup = document.querySelector('.success');
+      documentBody.removeChild(succesPopup);
+      document.removeEventListener('click', closeSuccesPopupOnClickOutside);
+      succesPopupCloseButton.removeEventListener('click', closeSuccesPopup);
+      document.removeEventListener('keydown', closeSuccessPopupOnEsc);
+    }
+
+    // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
+
+    document.addEventListener('click', closeSuccesPopupOnClickOutside);
+    succesPopupCloseButton.addEventListener('click', closeSuccesPopup);
+    document.addEventListener('keydown', closeSuccessPopupOnEsc);
+  };
+
+  // Создаем функцию, которая показывает окно с ошибкой отправки формы
+
+  const showErrorPopup = () => {
+
+    // Клонируем шаблон и помещаем в body
+
+    const errorTemplate = document.querySelector('#error').content;
+    const template = errorTemplate.querySelector('.error');
+
+    const fragment = document.createDocumentFragment();
+
+    const element = template.cloneNode(true);
+
+    fragment.appendChild(element);
+
+    documentBody.appendChild(fragment);
+
+    // Ищем кнопку закрытия в модалке
+
+    const errorPopupCloseButton = document.querySelector('.error__button');
+
+    // Сначала объявим функцию закрытия по Esc
+
+    const closeErrorPopupOnEsc = (evt) => {
+      if (isEscapeKey(evt)) {
+        closeErrorPopup();
+      }
+    };
+
+    // Далее объявим функцию закрытия по клику за пределами попапа
+
+    const closeErrorPopupOnClickOutside = (evt) => {
+      if (evt.target.matches('.error')) {
+        closeErrorPopup();
+      }
+    };
+
+    // И саму функцию, которая закрывает окно
+
+    function closeErrorPopup () {
+      const errorPopup = document.querySelector('.error');
+      documentBody.removeChild(errorPopup);
+      document.removeEventListener('click', closeErrorPopupOnClickOutside);
+      errorPopupCloseButton.removeEventListener('click', closeErrorPopup);
+      document.removeEventListener('keydown', closeErrorPopupOnEsc);
+    }
+
+    // Вешаем обработчики на кнопку закрытия, ESC и область за пределаеми попапа
+
+    document.addEventListener('click', closeErrorPopupOnClickOutside);
+    errorPopupCloseButton.addEventListener('click', closeErrorPopup);
+    document.addEventListener('keydown', closeErrorPopupOnEsc);
+  };
+
   // Создаем функции-обработчики для полей формы
 
   const onFormSubmit = (evt) => {
+    evt.preventDefault();
     const hashs = hashtagInput.value.split(' ');
 
-    if (!isHashtagsValid(hashs) || !isCommentValid()) {
-      evt.preventDefault();
+    if (!isHashtagsValid(hashs)) {
+      hashtagInput.classList.add('text__hashtags--error');
+    } else {
+      hashtagInput.classList.remove('text__hashtags--error');
+
     }
+
+    if (!isCommentValid()) {
+      commentInput.classList.add('text__description--error');
+    } else {
+      commentInput.classList.remove('text__description--error');
+    }
+
+    if (isHashtagsValid(hashs) && isCommentValid()) {
+      const formData = new FormData(evt.target);
+      closeImageModal();
+      sendData(formData, showSuccesPopup, showErrorPopup);
+    }
+
   };
 
   const onHashtagInput = () => {
     hashtagInput.setCustomValidity('');
+    hashtagInput.classList.remove('text__hashtags--error');
   };
 
   const onCommentInput = () => {
     commentInput.setCustomValidity('');
+    commentInput.classList.remove('text__description--error');
   };
 
   const onFieldFocusKeydown = (evt) => {
@@ -340,12 +468,12 @@ const openImageModal = () => {
 
   const closeImageModalOnEsc = (evt) => {
     if (isEscapeKey(evt)) {
-      closeImageModalOnClick();
+      closeImageModal();
     }
   };
 
   const removeImageModalEventListeners = () => {
-    imageModalCloseButton.removeEventListener('click', closeImageModalOnClick);
+    imageModalCloseButton.removeEventListener('click', closeImageModal);
     document.removeEventListener('keydown', closeImageModalOnEsc);
     reduceScaleControl.removeEventListener('click', onReduceControlClick);
     increaseScaleControl.removeEventListener('click', onIncreaseControlClick);
@@ -357,7 +485,7 @@ const openImageModal = () => {
     commentInput.removeEventListener('blur', onFieldBlur);
   };
 
-  function closeImageModalOnClick () {
+  function closeImageModal () {
     editingImageForm.classList.add('hidden');
     documentBody.classList.remove('modal--open');
     removeImageModalEventListeners();
@@ -365,7 +493,7 @@ const openImageModal = () => {
   }
 
 
-  imageModalCloseButton.addEventListener('click', closeImageModalOnClick);
+  imageModalCloseButton.addEventListener('click', closeImageModal);
   document.addEventListener('keydown', closeImageModalOnEsc);
 };
 
