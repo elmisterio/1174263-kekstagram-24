@@ -10,6 +10,7 @@ getData((dataArr) => {
   dataArr.forEach((photoItem) => {
     insertPhotoThumbnail(photoItem, pictures);
   });
+
   pictures.addEventListener('click', (evt) => {
     if (evt.target.matches('.picture__img')) {
       evt.preventDefault();
