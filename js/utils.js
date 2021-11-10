@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 // Функция, возвращающая случайное целое число из переданного диапазона включительно
 
 function getRandomInt(min, max) {
@@ -24,6 +23,44 @@ function isStringFit(string, maxlength) {
 // Проверка нажатия клавиши Esc
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
+
+// Случайное уникальное число из диапазона
+
+const getUniqueRandomIntFromRange = (min, max) => {
+  const previousValues = [];
+
+  return () => {
+    let currentValue = getRandomInt(min, max);
+    if (previousValues.length >= (max - min + 1)) {
+      throw new Error(`Перебраны все числа из диапазона от ${min} до ${max}`);
+    }
+    while (previousValues.includes(currentValue)) {
+      currentValue = getRandomInt(min, max);
+    }
+    previousValues.push(currentValue);
+    return currentValue;
+  };
+};
+
+// Функция-debounce
+
+const debounce = (callback, timeoutDelay = 500) => {
+  // Используем замыкания, чтобы id таймаута у нас навсегда приклеился
+  // к возвращаемой функции с setTimeout, тогда мы его сможем перезаписывать
+  let timeoutId;
+
+  return (...rest) => {
+    // Перед каждым новым вызовом удаляем предыдущий таймаут,
+    // чтобы они не накапливались
+    clearTimeout(timeoutId);
+
+    // Затем устанавливаем новый таймаут с вызовом колбэка на ту же задержку
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+
+    // Таким образом цикл "поставить таймаут - удалить таймаут" будет выполняться,
+    // пока действие совершается чаще, чем переданная задержка timeoutDelay
+  };
+};
 
 // Отрисовка миниатюр пользователей
 
@@ -52,6 +89,18 @@ const insertPhotoThumbnail = (data, node) => {
   node.appendChild(fragment);
 
   return element;
+};
+
+// Удаляем миниатюры
+
+let pictures;
+const picturesContainer = document.querySelector('.pictures');
+
+const clearPhotoThumbnails = () => {
+  pictures = picturesContainer.querySelectorAll('.picture');
+  pictures.forEach((pictureItem) => {
+    pictureItem.remove();
+  });
 };
 
 // Отрисовка окна с полноразмерным изображением
@@ -237,4 +286,4 @@ const showErrorGetDataPopup = () => {
 
 // Export
 
-export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey, showErrorGetDataPopup};
+export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey, showErrorGetDataPopup, getUniqueRandomIntFromRange, clearPhotoThumbnails, debounce};

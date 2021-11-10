@@ -8,7 +8,6 @@ const getData = (success, error) => fetch('https://24.javascript.pages.academy/k
   })
   .then((data) => {
     success(data);
-    return data;
   })
   .catch(() => {
     error();

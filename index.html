@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link href="/nouislider/dist/nouislider.css" rel="stylesheet">
+  <link href="nouislider/dist/nouislider.css" rel="stylesheet">
   <title>Кекстаграм</title>
 </head>
 
@@ -35,7 +35,7 @@
 
             <!-- Изначальное состояние поля для загрузки изображения -->
             <fieldset class="img-upload__start">
-              <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" required>
+              <input type="file" id="upload-file" class="img-upload__input  visually-hidden" name="filename" accept="image/png, image/jpeg" required>
               <label for="upload-file" class="img-upload__label  img-upload__control">Загрузить</label>
             </fieldset>
 
@@ -127,8 +127,6 @@
           </form>
         </div>
       </section>
-
-      <!-- Здесь будут изображения других пользователей -->
 
     </section>
 
@@ -231,7 +229,7 @@
     <div class="img-upload__message  img-upload__message--loading">Загружаем...</div>
   </template>
 
-  <script src="/nouislider/dist/nouislider.js"></script>
+  <script src="nouislider/dist/nouislider.js"></script>
   <script src="js/main.js" type="module"></script>
 
 </body>
