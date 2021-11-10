@@ -36,7 +36,7 @@ getData((dataArr) => {
     photoArr.forEach((photoItem) => {
       insertPhotoThumbnail(photoItem, picturesContainer);
     });
-  }, 3000);
+  }, 500);
 
   filterRandomButton.addEventListener('click', (evt) => {
     sortByRandomWithThrottle();
