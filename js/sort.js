@@ -1,8 +1,7 @@
-import {insertPhotoThumbnail, getUniqueRandomIntFromRange} from './utils.js';
+import { getUniqueRandomIntFromRange} from './utils.js';
 
 // Находим элементы фильтра
 
-const picturesContainer = document.querySelector('.pictures');
 const imageFilters = document.querySelector('.img-filters');
 const filterDefaultButton = imageFilters.querySelector('#filter-default');
 const filterRandomButton = imageFilters.querySelector('#filter-random');
@@ -12,20 +11,11 @@ const filterDiscussedButton = imageFilters.querySelector('#filter-discussed');
 
 const compareCommentsAmount = (a, b) => b.comments.length - a.comments.length;
 
-// Описываем функцию сортировки по умолчанию
-
-const sortByDefault = (dataArr) => {
-  dataArr.forEach((photoItem) => {
-    insertPhotoThumbnail(photoItem, picturesContainer);
-  });
-};
-
 // Описываем функцию сортировки, которая показывает 10 случайных фото
 
 const sortByRandom = (dataArr) => {
   const photoArrFull = [];
   const generateUniqueInt = getUniqueRandomIntFromRange(0, 24);
-
 
   while (photoArrFull.length <= 24) {
     photoArrFull.push(dataArr[generateUniqueInt()]);
@@ -33,9 +23,7 @@ const sortByRandom = (dataArr) => {
 
   const photoArr = photoArrFull.slice(0, 10);
 
-  photoArr.forEach((photoItem) => {
-    insertPhotoThumbnail(photoItem, picturesContainer);
-  });
+  return photoArr;
 };
 
 // Описываем функцию сортировки по комментариям к фото
@@ -45,9 +33,7 @@ const sortByDiscussed = (dataArr) => {
 
   photoArr.sort(compareCommentsAmount);
 
-  photoArr.forEach((photoItem) => {
-    insertPhotoThumbnail(photoItem, picturesContainer);
-  });
+  return photoArr;
 };
 
 // Описываем функцию переключения активной кнопки сортировки
@@ -61,4 +47,4 @@ const changeActiveSortButton = (evt) => {
 };
 
 
-export {sortByDefault, sortByRandom, sortByDiscussed, changeActiveSortButton};
+export {sortByRandom, sortByDiscussed, changeActiveSortButton};

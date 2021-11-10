@@ -487,7 +487,7 @@ const openImageModal = () => {
 
   function closeImageModal () {
     editingImageForm.classList.add('hidden');
-    documentBody.classList.remove('modal--open');
+    documentBody.classList.remove('modal-open');
     removeImageModalEventListeners();
     clearModalValues();
   }
@@ -503,7 +503,7 @@ const openImageModal = () => {
 const uploadImage = () => {
   uploadButton.addEventListener('change', () => {
     editingImageForm.classList.remove('hidden');
-    documentBody.classList.add('modal--open');
+    documentBody.classList.add('modal-open');
 
     // Подставляем выбранное фото в форму
 

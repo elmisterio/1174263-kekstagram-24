@@ -1,7 +1,7 @@
 import {uploadImage} from './form.js';
 import {getData} from './fetch.js';
-import {showErrorGetDataPopup, insertPhotoThumbnail, openFullPhoto, clearPhotoThumbnails, debounce} from './utils.js';
-import {sortByDefault, sortByRandom, sortByDiscussed, changeActiveSortButton} from './sort.js';
+import {showErrorGetDataPopup, insertPhotoThumbnail, openFullPhoto, clearPhotoThumbnails, throttle} from './utils.js';
+import {sortByRandom, sortByDiscussed, changeActiveSortButton} from './sort.js';
 
 // Добавляем миниатюры фото на главную страницу
 
@@ -18,33 +18,41 @@ getData((dataArr) => {
 
   imageFilters.classList.remove('img-filters--inactive');
 
-  filterDefaultButton.addEventListener('click', (evt) => {
-    const sortByDefaultWithDebounce = debounce(() => {
-      clearPhotoThumbnails();
-      sortByDefault(dataArr);
-    }, 500);
-    sortByDefaultWithDebounce();
+  const sortByDefaultWithThrottle = throttle(() => {
+    clearPhotoThumbnails();
+    dataArr.forEach((photoItem) => {
+      insertPhotoThumbnail(photoItem, picturesContainer);
+    });
+  }, 500);
 
+  filterDefaultButton.addEventListener('click', (evt) => {
+    sortByDefaultWithThrottle();
     changeActiveSortButton(evt);
   });
+
+  const sortByRandomWithThrottle = throttle(() => {
+    clearPhotoThumbnails();
+    const photoArr = sortByRandom(dataArr);
+    photoArr.forEach((photoItem) => {
+      insertPhotoThumbnail(photoItem, picturesContainer);
+    });
+  }, 3000);
 
   filterRandomButton.addEventListener('click', (evt) => {
-    const sortByRandomWithDebounce = debounce(() => {
-      clearPhotoThumbnails();
-      sortByRandom(dataArr);
-    }, 500);
-    sortByRandomWithDebounce();
-
+    sortByRandomWithThrottle();
     changeActiveSortButton(evt);
   });
 
-  filterDiscussedButton.addEventListener('click', (evt) => {
-    const sortByDiscussedWithDebounce = debounce(() => {
-      clearPhotoThumbnails();
-      sortByDiscussed(dataArr);
-    }, 500);
-    sortByDiscussedWithDebounce();
+  const sortByDiscussedWithThrottle = throttle(() => {
+    clearPhotoThumbnails();
+    const photoArr = sortByDiscussed(dataArr);
+    photoArr.forEach((photoItem) => {
+      insertPhotoThumbnail(photoItem, picturesContainer);
+    });
+  }, 500);
 
+  filterDiscussedButton.addEventListener('click', (evt) => {
+    sortByDiscussedWithThrottle();
     changeActiveSortButton(evt);
   });
 
