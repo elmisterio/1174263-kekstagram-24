@@ -65,6 +65,7 @@ getData((dataArr) => {
   });
 }, showErrorGetDataPopup);
 
+
 // Вызываем обработчик загрузки изображения
 
 uploadImage();
