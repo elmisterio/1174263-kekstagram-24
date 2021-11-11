@@ -6,6 +6,7 @@ const documentBody = document.querySelector('body');
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadButton = uploadForm.querySelector('.img-upload__input');
 const editingImageForm = uploadForm.querySelector('.img-upload__overlay');
+const image = uploadForm.querySelector('.img-upload__preview img');
 
 // Создаем функцию, открывающую окно редактирования фото
 
@@ -13,7 +14,6 @@ const openImageModal = () => {
   const reduceScaleControl = uploadForm.querySelector('.scale__control--smaller');
   const increaseScaleControl = uploadForm.querySelector('.scale__control--bigger');
   const imageScaleValueField = uploadForm.querySelector('.scale__control--value');
-  const image = uploadForm.querySelector('.img-upload__preview img');
 
   // Масштаб
 
@@ -487,7 +487,7 @@ const openImageModal = () => {
 
   function closeImageModal () {
     editingImageForm.classList.add('hidden');
-    documentBody.classList.remove('modal--open');
+    documentBody.classList.remove('modal-open');
     removeImageModalEventListeners();
     clearModalValues();
   }
@@ -503,7 +503,15 @@ const openImageModal = () => {
 const uploadImage = () => {
   uploadButton.addEventListener('change', () => {
     editingImageForm.classList.remove('hidden');
-    documentBody.classList.add('modal--open');
+    documentBody.classList.add('modal-open');
+
+    // Подставляем выбранное фото в форму
+
+    const file = uploadButton.files[0];
+    image.src = URL.createObjectURL(file);
+
+    // Открываем модалку с фото
+
     openImageModal();
   });
 };

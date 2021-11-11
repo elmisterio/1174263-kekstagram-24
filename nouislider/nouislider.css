@@ -18,6 +18,7 @@
 }
 .noUi-target {
   position: relative;
+  top: 8px;
 }
 .noUi-base,
 .noUi-connects {
