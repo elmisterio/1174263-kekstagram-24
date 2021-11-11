@@ -21,9 +21,7 @@ const sortByRandom = (dataArr) => {
     photoArrFull.push(dataArr[generateUniqueInt()]);
   }
 
-  const photoArr = photoArrFull.slice(0, 10);
-
-  return photoArr;
+  return photoArrFull;
 };
 
 // Описываем функцию сортировки по комментариям к фото

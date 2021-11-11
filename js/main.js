@@ -18,7 +18,7 @@ getData((dataArr) => {
 
   imageFilters.classList.remove('img-filters--inactive');
 
-  const sortByDefaultWithThrottle = throttle(() => {
+  const insertDefaultThumbnails = throttle(() => {
     clearPhotoThumbnails();
     dataArr.forEach((photoItem) => {
       insertPhotoThumbnail(photoItem, picturesContainer);
@@ -26,24 +26,25 @@ getData((dataArr) => {
   }, 500);
 
   filterDefaultButton.addEventListener('click', (evt) => {
-    sortByDefaultWithThrottle();
+    insertDefaultThumbnails();
     changeActiveSortButton(evt);
   });
 
-  const sortByRandomWithThrottle = throttle(() => {
+  const insertRandomThumbnails = throttle(() => {
     clearPhotoThumbnails();
-    const photoArr = sortByRandom(dataArr);
+    const photoArrFull = sortByRandom(dataArr);
+    const photoArr = photoArrFull.slice(0, 10);
     photoArr.forEach((photoItem) => {
       insertPhotoThumbnail(photoItem, picturesContainer);
     });
   }, 500);
 
   filterRandomButton.addEventListener('click', (evt) => {
-    sortByRandomWithThrottle();
+    insertRandomThumbnails();
     changeActiveSortButton(evt);
   });
 
-  const sortByDiscussedWithThrottle = throttle(() => {
+  const insertDiscussedThumbnails = throttle(() => {
     clearPhotoThumbnails();
     const photoArr = sortByDiscussed(dataArr);
     photoArr.forEach((photoItem) => {
@@ -52,7 +53,7 @@ getData((dataArr) => {
   }, 500);
 
   filterDiscussedButton.addEventListener('click', (evt) => {
-    sortByDiscussedWithThrottle();
+    insertDiscussedThumbnails();
     changeActiveSortButton(evt);
   });
 
