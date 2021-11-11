@@ -14,11 +14,11 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Функция для проверки максимальной длины строки
+// // Функция для проверки максимальной длины строки
 
-function isStringFit(string, maxlength) {
-  return +string.length <= maxlength;
-}
+// function isStringFit(string, maxlength) {
+//   return +string.length <= maxlength;
+// }
 
 // Проверка нажатия клавиши Esc
 
@@ -309,4 +309,4 @@ const showErrorGetDataPopup = () => {
 
 // Export
 
-export {getRandomInt, isStringFit, insertPhotoThumbnail, openFullPhoto, isEscapeKey, showErrorGetDataPopup, getUniqueRandomIntFromRange, clearPhotoThumbnails, throttle};
+export {getRandomInt, insertPhotoThumbnail, openFullPhoto, isEscapeKey, showErrorGetDataPopup, getUniqueRandomIntFromRange, clearPhotoThumbnails, throttle};
