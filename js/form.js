@@ -10,10 +10,18 @@ const image = uploadForm.querySelector('.img-upload__preview img');
 
 // Создаем функцию, открывающую окно редактирования фото
 
+const reduceScaleControl = uploadForm.querySelector('.scale__control--smaller');
+const increaseScaleControl = uploadForm.querySelector('.scale__control--bigger');
+const imageScaleValueField = uploadForm.querySelector('.scale__control--value');
+
 const openImageModal = () => {
-  const reduceScaleControl = uploadForm.querySelector('.scale__control--smaller');
-  const increaseScaleControl = uploadForm.querySelector('.scale__control--bigger');
-  const imageScaleValueField = uploadForm.querySelector('.scale__control--value');
+  editingImageForm.classList.remove('hidden');
+  documentBody.classList.add('modal-open');
+
+  // Подставляем выбранное фото в форму
+
+  const file = uploadButton.files[0];
+  image.src = URL.createObjectURL(file);
 
   // Масштаб
 
@@ -265,7 +273,6 @@ const openImageModal = () => {
   // Создаем функцию, проверяющую комментарий на валидность
 
   const isCommentValid = () => {
-
     if (commentInput.value.length > 140) {
       commentInput.setCustomValidity('Длина комментария не может составлять больше 140 символов');
       commentInput.reportValidity();
@@ -460,10 +467,11 @@ const openImageModal = () => {
     hashtagInput.value = '';
     commentInput.value = '';
     imageScaleValueField.value = '100%';
-    image.style.filter = '';
     slider.noUiSlider.destroy();
     image.className = '';
     image.classList.add('effects__preview--none');
+    image.style.filter = '';
+    image.style.transform = 'scale(1)';
   };
 
   const closeImageModalOnEsc = (evt) => {
@@ -497,23 +505,5 @@ const openImageModal = () => {
   document.addEventListener('keydown', closeImageModalOnEsc);
 };
 
-// Создаем функцию, которая вешает слушатель на кнопку загрузки фото и открывает модальное окно
-// редактирования фотографии
 
-const uploadImage = () => {
-  uploadButton.addEventListener('change', () => {
-    editingImageForm.classList.remove('hidden');
-    documentBody.classList.add('modal-open');
-
-    // Подставляем выбранное фото в форму
-
-    const file = uploadButton.files[0];
-    image.src = URL.createObjectURL(file);
-
-    // Открываем модалку с фото
-
-    openImageModal();
-  });
-};
-
-export {uploadImage, openImageModal};
+export {openImageModal};

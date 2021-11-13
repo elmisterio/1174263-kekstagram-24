@@ -1,4 +1,4 @@
-import {uploadImage} from './form.js';
+import {openImageModal} from './form.js';
 import {getData} from './fetch.js';
 import {showErrorGetDataPopup, insertPhotoThumbnail, openFullPhoto, clearPhotoThumbnails, throttle} from './utils.js';
 import {sortByRandom, sortByDiscussed, changeActiveSortButton} from './sort.js';
@@ -66,6 +66,11 @@ getData((dataArr) => {
 }, showErrorGetDataPopup);
 
 
-// Вызываем обработчик загрузки изображения
+// Вешаем обработчик загрузки изображения
 
-uploadImage();
+const uploadForm = document.querySelector('.img-upload__form');
+const uploadButton = uploadForm.querySelector('.img-upload__input');
+
+uploadButton.addEventListener('change', () => {
+  openImageModal();
+});
