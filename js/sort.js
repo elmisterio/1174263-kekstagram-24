@@ -1,11 +1,5 @@
-import { getUniqueRandomIntFromRange} from './utils.js';
-
-// Находим элементы фильтра
-
-const imageFilters = document.querySelector('.img-filters');
-const filterDefaultButton = imageFilters.querySelector('#filter-default');
-const filterRandomButton = imageFilters.querySelector('#filter-random');
-const filterDiscussedButton = imageFilters.querySelector('#filter-discussed');
+import {getUniqueRandomIntFromRange} from './utils.js';
+import {filterDefaultButtonElement, filterRandomButtonElement, filterDiscussedButtonElement} from './main.js';
 
 // Описываем функцию-компаратор сортировки по убыванию кол-ва комментариев
 
@@ -13,11 +7,13 @@ const compareCommentsAmount = (a, b) => b.comments.length - a.comments.length;
 
 // Описываем функцию сортировки, которая показывает 10 случайных фото
 
+const MAX_COMMENTS_AMOUNT = 24;
+
 const sortByRandom = (dataArr) => {
   const photoArrFull = [];
-  const generateUniqueInt = getUniqueRandomIntFromRange(0, 24);
+  const generateUniqueInt = getUniqueRandomIntFromRange(0, MAX_COMMENTS_AMOUNT);
 
-  while (photoArrFull.length <= 24) {
+  while (photoArrFull.length <= MAX_COMMENTS_AMOUNT) {
     photoArrFull.push(dataArr[generateUniqueInt()]);
   }
 
@@ -37,9 +33,9 @@ const sortByDiscussed = (dataArr) => {
 // Описываем функцию переключения активной кнопки сортировки
 
 const changeActiveSortButton = (evt) => {
-  filterDefaultButton.classList.remove('img-filters__button--active');
-  filterRandomButton.classList.remove('img-filters__button--active');
-  filterDiscussedButton.classList.remove('img-filters__button--active');
+  filterDefaultButtonElement.classList.remove('img-filters__button--active');
+  filterRandomButtonElement.classList.remove('img-filters__button--active');
+  filterDiscussedButtonElement.classList.remove('img-filters__button--active');
 
   evt.target.classList.add('img-filters__button--active');
 };
